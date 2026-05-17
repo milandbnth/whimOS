@@ -1,8 +1,8 @@
 all: boot/boot.o boot/gdt_flush.o boot/idt_flush.o boot/isr.o boot/irq.o \
-     kernel/kernel.o kernel/gdt.o kernel/idt.o kernel/irq.o
+     kernel/kernel.o kernel/gdt.o kernel/idt.o kernel/irq.o kernel/shell.o
 	ld -m elf_i386 -T linker.ld -o whimos.bin \
 	    boot/boot.o boot/gdt_flush.o boot/idt_flush.o boot/isr.o boot/irq.o \
-	    kernel/kernel.o kernel/gdt.o kernel/idt.o kernel/irq.o
+	    kernel/kernel.o kernel/gdt.o kernel/idt.o kernel/irq.o kernel/shell.o
 
 boot/boot.o: boot/boot.asm
 	nasm -f elf32 boot/boot.asm -o boot/boot.o
@@ -31,8 +31,16 @@ kernel/idt.o: kernel/idt.c
 kernel/irq.o: kernel/irq.c
 	gcc -m32 -ffreestanding -c kernel/irq.c -o kernel/irq.o
 
-run:
-	qemu-system-x86_64 -kernel whimos.bin -display none -serial mon:stdio
+kernel/keyboard.o: kernel/keyboard.c
+	gcc -m32 -ffreestanding -c kernel/keyboard.c -o kernel/keyboard.o
 
+kernel/shell.o: kernel/shell.c
+	gcc -m32 -ffreestanding -c kernel/shell.c -o kernel/shell.o
+
+
+run:
+	qemu-system-x86_64 -kernel whimos.bin -display none \
+	    -chardev stdio,id=char0,mux=off \
+	    -serial chardev:char0
 clean:
 	rm -f boot/*.o kernel/*.o whimos.bin
