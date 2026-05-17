@@ -15,7 +15,7 @@ extern void isr9(void);  extern void isr10(void); extern void isr11(void);
 extern void isr12(void); extern void isr13(void); extern void isr14(void);
 extern void isr15(void); extern void isr16(void);
 
-static void idt_set_gate(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags) {
+void idt_set_gate(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags) {
     idt[num].base_low  = base & 0xFFFF;
     idt[num].base_high = (base >> 16) & 0xFFFF;
     idt[num].selector  = sel;
